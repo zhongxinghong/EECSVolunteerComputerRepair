@@ -1,0 +1,92 @@
+{#
+    filename: check.html
+    description: 查询页
+#}
+
+{% extends "order/base.html" %}
+{% block title %}Check Order{% endblock title %}
+
+{% block body %}
+<div class="row mb-3">
+  <div class="col-12">
+    <h4>查询预约</h4>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col-12">
+    <form id="form-check" action="{{ url_for('order.api_check') }}" method="POST">
+      <div class="form-group row">
+        <label for="form-email" class="col-form-label col-sm-3 col-md-2">邮箱：</label>
+        <div class="col">
+          <input type="email" id="form-email" name="email" class="form-control" placeholder="Email" required="required">
+          <div class="invalid-feedback" hidden="hidden">该邮箱下未找到有效订单</div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-outline-primary btn-block mt-4">查询订单</button>
+    </form>
+  </div>
+</div>
+{% if order %}
+<div class="row mt-5 mb-3">
+  <div class="col-12">
+    <h4>历史预约</h4>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col-12">
+    <p>预约单号： <span class="font-weight-bold">{{ order.orderID }}</span></p>
+    <p>创建时间： <span>{{ order.create_time|strftime }}</span></p>
+    <p>订单状态： {% if order.status == 0 %}
+                  <span class="text-success font-weight-bold">成功预约</span>
+                {% elif order.status == 1 %}
+                  <span class="text-warning font-weight-bold">已撤销</span>
+                {% else %}
+                  <span class="text-danger font-weight-bold">异常订单</span>
+                {% endif %}</p>
+    <p>邮箱： 　　<span>{{ order.email }}</span></p>
+    <p>维修类型： <span>{{ order.type }}</span></p>
+    <p>电脑型号： <span>{{ order.model }}</span></p>
+    <p>问题描述： <span>{{ order.description }}</span></p>
+    <p>活动安排： <span class="font-weight-bold">{{ order.day }}　{{ order.site }}</span></p>
+    <p>预约时段： <span class="font-weight-bold">{{ order.appointment }}</span></p>
+  </div>
+</div>
+{% endif %}
+{% endblock body%}
+
+{% block script %}
+<script type="text/javascript">
+  "use strict";
+
+  $("form#form-check").submit(function() {
+    var form = $(this);
+    $.ajax({
+      url: form.attr("action"),
+      type: form.attr("method"),
+      data: form.serialize(),
+    })
+    .done(function(res) {
+      switch (res.errcode) {
+        case 0:
+          window.location.href = res.redirect;
+          break;
+        case 302: // 订单未找到
+          var emailInput = form.find('input#form-email');
+          emailInput.addClass("is-invalid").next("div.invalid-feedback").removeAttr('hidden');
+          emailInput[0].oninput = function() {
+            $(this).removeClass("is-invalid").next("div.invalid-feedback").attr('hidden', 'hidden');
+          };
+          break;
+        default:
+          console.error(res);
+          throw new Error(res.errmsg);
+          break;
+      }
+    })
+    .fail(function(res) {
+      throw new Error(res);
+    });
+    return false;
+  });
+</script>
+{% endblock script %}

@@ -1,0 +1,108 @@
+{#
+    filename: queue.html
+    description: 维修队列管理
+#}
+
+{% extends "admin/base.html" %}
+{% block title %}Queue{% endblock title %}
+
+{% block body %}
+<div class="row mb-4">
+  <div class="col-12">
+    <p>待修：<span class="text-danger font-weight-bold">{{ counts[0] }}</span>　在修：<span class="text-warning font-weight-bold">{{ counts[1] }}</span>　已修：<span class="text-success font-weight-bold">{{ counts[2] }}</span></p>
+    <p>队列长度： <span class="font-weight-bold">{{ queue|length }}</span></p>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col-12">
+    <div class="table-responsive-md">
+      <table class="table table-bordered">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col" style="min-width: 3.6em;">序号</th>
+            <th scope="col" style="min-width: 3.6em;">状态</th>
+            <th scope="col" style="min-width: 3.6em;">类型</th>
+            <th scope="col" style="min-width: 3.6em;">机型</th>
+            <th scope="col">问题描述</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% set statusAry = ["待修","在修","已修"] %}
+        {% set statusColor = ["text-danger","text-warning","text-success"] %}
+
+        {% for item in queue %}
+          {% set status = item.status %}
+          <tr>
+            <th scope="row">{{ item.queueID }}</th>
+          {% if isAdmin %}
+              <td>
+                <select class="select-status form-control-sm bg-white {{ statusColor[status] }}" action="{{ url_for('admin.api_change_status') }}" method="POST">
+                {% for msg in statusAry %}
+                {% set idx = loop.index0 %}
+                  <option class="{{ statusColor[idx] }}" value="{{ idx }}" {% if status == idx %}selected="selected"{% endif %}>{{ statusAry[idx] }}</option>
+                {% endfor %}
+                </select>
+              </td>
+          {% else %}
+              <td class="{{ statusColor[status] }}">{{ statusAry[status] }}</td>
+          {% endif %}
+            <td>{{ item.type }}</td>
+            <td>{{ item.model }}</td>
+            <td>{{ item.description }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <th scope="row">-</th>
+            <th>-</th>
+            <th>-</th>
+            <th>-</th>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock body %}
+
+{% block script %}
+<script type="text/javascript">
+  "use strict";
+
+  $("select.select-status").change(function() {
+    var select = $(this);
+    var statusVal = parseInt(select.val());
+
+    var statusColor = ["text-danger","text-warning","text-success"];
+    for (var i = 0; i < statusColor.length; i++) {
+      select.removeClass(statusColor[i]);
+    };
+    select.addClass(statusColor[statusVal]);
+
+    var urlParams = new URLSearchParams(window.location.search);
+    $.ajax({
+      url: select.attr('action') + "?token=" + urlParams.get("token"),
+      type: select.attr('method'),
+      data: {
+        queueID: select.parent("td").prev("th").html(),
+        status: statusVal,
+      },
+    })
+    .done(function(res) {
+      switch (res.errcode) {
+        case 0:
+          break;
+        default:
+          console.error(res);
+          alert("设置失败！");
+          throw new Error(res.errmsg);
+          break;
+      }
+    })
+    .fail(function(res) {
+      throw new Error(res);
+    });
+    return false;
+  });
+</script>
+{% endblock script %}

@@ -1,0 +1,24 @@
+{#
+    filename: result.html
+    description: 挂号结果
+#}
+
+{% extends "order/base.html" %}
+{% block title %}Registration Result{% endblock title %}
+
+{% block body %}
+<div class="row mb-3">
+  <div class="col-12">
+    <h4>挂号结果</h4>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col-12">
+    <p>流水号： <span class="font-weight-bold"><big>{{ queueID }}</big></span></p>
+    <p>当前排队人数： <span class="font-weight-bold">{{ interval }} 人</span></p>
+    <p>维修类型： <span>{{ order.type }}</span></p>
+    <p>电脑型号： <span>{{ order.model }}</span></p>
+    <p>问题描述： <span>{{ order.description }}</span></p>
+  </div>
+</div>
+{% endblock body %}

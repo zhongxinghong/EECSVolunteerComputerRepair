@@ -1,0 +1,83 @@
+{#
+    filename: site-base.html
+    description: web 基础模板
+
+    export:
+      macro  head(title)
+      macro  header(title, nav)
+      set    footer
+      set    script
+#}
+
+
+{% macro head(title) %}
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>{{ title }}</title>
+  <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('base.favicon') }}">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('base.favicon') }}">
+  {#<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">#}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/vendors/bootstrap.min.css') }}">
+  <style type="text/css">
+    body div.container {
+      max-width: 768px;
+    }
+  </style>
+</head>
+{% endmacro %}
+
+{% macro header(title, nav) %}
+  <header class="row mt-4 mb-5">
+    <div class="col-12 mb-3">
+      <img src="{{ url_for('static', filename='assets/logo.png') }}" height="80" alt="" class="d-inline-block align-top">
+      <div class="d-inline-block align-top ml-2">
+        <h1>{{ title }}</h1>
+        <h4>Computer Repair</h4>
+      </div>
+    </div>
+    <div class="col-12">
+      {{ nav }}
+    </div>
+  </header>
+{% endmacro %}
+
+{% set footer %}
+  <footer class="row mt-5 mb-4">
+    <div class="col-12">
+      <address>
+        @EECS Volunteer, 2018
+      </address>
+    </div>
+  </footer>
+{% endset %}
+
+{% set script %}
+  {# <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script> #}
+  {# <script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script> #}
+  {# <script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script> #}
+  <script src="{{ url_for('static', filename='js/vendors/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/vendors/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/main.min.js') }}"></script>
+  {#<script type="text/javascript">
+    "use strict";
+
+    $("label[for]").each(function (idx, ele) {
+      var label = $(ele);
+      if ($("input[id=" + label.attr("for") + "]").attr('required') !== undefined) {
+        label.prepend('<span class="text-danger">* </span>')
+      }
+    });
+
+    var pathname = window.location.pathname;
+    var path = pathname.substring(pathname.lastIndexOf("/")+1);
+    $("header ul li.nav-item a.nav-link").each(function (idx, ele) {
+      var a = $(ele);
+      var href = a.attr("href");
+      if (href.substring(href.lastIndexOf("/")+1) == path) {
+        a.addClass('active');
+      }
+    });
+  </script>#}
+{% endset %}

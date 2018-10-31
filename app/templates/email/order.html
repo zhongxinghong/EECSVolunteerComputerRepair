@@ -1,0 +1,16 @@
+<h2>您的维修订单</h2>
+<p>预约单号： <span style="font-weight: bold;">{{ order.orderID }}</span></p>
+<p>创建时间： <span>{{ order.create_time|strftime }}</span></p>
+<p>订单状态： {% if order.status == 0 %}
+              <span style="font-weight: bold; color: #28a745;">成功预约</span>
+            {% elif order.status == 1 %}
+              <span style="font-weight: bold; color: #ffc107;">已撤销</span>
+            {% else %}
+              <span style="font-weight: bold; color: #dc3545;">异常订单</span>
+            {% endif %}</p>
+<p>校验码：　 <span style="font-weight: bold;">{{ order.chksn }}</span></p>
+<p>维修类型： <span>{{ order.type }}</span></p>
+<p>电脑型号： <span>{{ order.model }}</span></p>
+<p>问题描述： <span>{{ order.description }}</span></p>
+<p>活动安排： <span style="font-weight: bold;">{{ order.day }}　{{ order.site }}</span></p>
+<p>预约时段： <span style="font-weight: bold;">{{ order.appointment }}</span></p>

@@ -1,0 +1,43 @@
+{#
+    filename: base.html
+    description: order 模板
+
+    blocks:
+      title
+      body
+      script
+#}
+
+{% import "site-base.html" as base %}
+
+{% set title -%}
+  {% block title %}{% endblock title %} - EECS Volunteer
+{%- endset %}
+
+{% set nav %}
+  <ul class="nav nav-tabs navbar-expand">
+    <li class="nav-item">
+      <a href="{{ url_for('order.page_guide') }}" class="nav-link">说明</a>
+    </li>
+    <li class="nav-item">
+      <a href="{{ url_for('order.page_new') }}" class="nav-link">预约</a>
+    </li>
+    <li class="nav-item">
+      <a href="{{ url_for('order.page_check') }}" class="nav-link">查询＆撤销</a>
+    </li>
+  </ul>
+{% endset %}
+
+<!DOCTYPE html>
+<html>
+  {{ base.head(title) }}
+<body>
+  <div class="container">
+    {{ base.header("预约平台", nav) }}
+    {% block body %}{% endblock body %}
+    {{ base.footer }}
+    {{ base.script }}
+    {#{% block script %}{% endblock script %}#}
+  </div>
+</body>
+</html>

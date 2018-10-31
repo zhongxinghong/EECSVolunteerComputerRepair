@@ -1,0 +1,39 @@
+{#
+    filename: base.html
+    description: admin 模板
+
+    blocks:
+      title
+      body
+      script
+#}
+
+{% import "site-base.html" as base %}
+
+{% set title -%}
+  {% block title %}{% endblock title %}
+{%- endset %}
+
+{% set nav %}
+  <ul class="nav nav-tabs navbar-expand">
+    <li class="nav-item">
+      <a href="{{ url_for('admin.page_home') }}" class="nav-link">首页</a>
+    </li>
+    <li class="nav-item">
+      <a href="{{ url_for('admin.page_queue') }}" class="nav-link">维修队列</a>
+    </li>
+  </ul>
+{% endset %}
+
+<!DOCTYPE html>
+<html>
+  {{ base.head(title) }}
+<body>
+  <div class="container">
+    {{ base.header("管理平台", nav) }}
+    {% block body %}{% endblock body %}
+    {{ base.footer }}
+    {{ base.script }}
+    {#{% block script %}{% endblock script %}#}
+</body>
+</html>

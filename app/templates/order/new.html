@@ -1,0 +1,160 @@
+{#
+    filename: new.html
+    description: 新建预约
+#}
+
+{% extends "order/base.html" %}
+{% block title %}New Order{% endblock title %}
+
+{% block body %}
+<div class="row mb-3">
+  <div class="col-12">
+    <h4>活动安排</h4>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-12">
+    <p>时间： <span class="font-weight-bold">{{ date }}　{{ start }} ~ {{ end }}</span></p>
+    <p>地点： <span class="font-weight-bold">{{ site }}</span></p>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col-12">
+    <h4>当前预约</h4>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-12">
+    <table class="table table-bordered">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">可选时段</th>
+          <th scope="col">当前预约</th>
+          <th scope="col">状态</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for item in appointments %}
+        {% set sum = item.sum %}
+        <tr>
+          <th scope="row">{{ item.appointment }}</th>
+          <td>{{ sum }}</td>
+        {% if sum < 10 %}
+          <td class="font-weight-bold text-success">空闲</td>
+        {% elif sum < 20 %}
+          <td class="font-weight-bold text-warning">忙碌</td>
+        {% else %}
+          <td class="font-weight-bold text-danger">爆满</td>
+        {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col-12">
+    <h4>新建预约</h4>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col-12">
+    <form id="form-order" action="{{ url_for('order.api_create') }}" method="POST">
+      <div class="form-group row">
+        <label for="form-email" class="col-form-label col-sm-3 col-md-2">邮箱：</label>
+        <div class="col">
+          <input type="email" id="form-email" name="email" class="form-control" placeholder="Email" required="required">
+          <div class="invalid-feedback" hidden="hidden">该邮箱下已存在有效预约订单</div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="form-wechat" class="col-form-label col-sm-3 col-md-2">微信号：</label>
+        <div class="col">
+          <input type="text" id="form-wechat" name="wechat" class="form-control" placeholder="Wechat ID">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="form-computer-model" class="col-form-label col-sm-3 col-md-2">电脑型号：</label>
+        <div class="col">
+          <input type="text" id="form-computer-model" name="model" class="form-control" placeholder="Computer Model">
+        </div>
+      </div>
+      <div class="form-group row align-items-center">
+        <label class="col-form-label col-sm-3 col-md-2">维修类型：</label>
+        <div class="col">
+          <div class="form-check form-check-inline">
+            <input type="radio" id="form-problem-type-dust" name="type" class="form-check-input" value="dust" checked="checked">
+            <label for="form-problem-type-dust" class="form-check-label">清灰</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input type="radio" id="form-problem-type-hardware" name="type" class="form-check-input" value="hardware">
+            <label for="form-problem-type-hardware" class="form-check-label">硬件</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input type="radio" id="form-problem-type-software" name="type" class="form-check-input" value="software">
+            <label for="form-problem-type-software" class="form-check-label">软件</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input type="radio" id="form-problem-type-other" name="type" class="form-check-input" value="other">
+            <label for="form-problem-type-other" class="form-check-label">其他</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="form-problem-description" class="col-form-label col-sm-3 col-md-2">问题描述：</label>
+        <div class="col">
+          <textarea class="form-control" id="form-problem-description" name="description" class="form-control" placeholder="Problem Description" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="form-appointment" class="col-form-label col-sm-3 col-md-2">预约时段：</label>
+        <div class="input-group col">
+          <select id="form-appointment" name="appointment" form="form-order" class="form-control">
+          {% for opt in options %}
+            <option value="{{ opt }}" {% if loop.index == 1 %}selected="selected"{% endif %}>{{ opt }}</option>
+          {% endfor %}
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-outline-primary btn-block mt-4">提交订单</button>
+    </form>
+  </div>
+</div>
+{% endblock body%}
+
+{% block script %}
+<script type="text/javascript">
+  "use strict";
+
+  $("form#form-order").submit(function() {
+    var form = $(this);
+    $.ajax({
+      url: form.attr('action'),
+      type: form.attr('method'),
+      data: form.serialize(),
+    })
+    .done(function(res) {
+      switch (res.errcode) {
+        case 0:
+          window.location.href = res.redirect;
+          break;
+        case 301: // 表单重复创建
+          var emailInput = form.find('input#form-email');
+          emailInput.addClass("is-invalid").next("div.invalid-feedback").removeAttr('hidden');
+          emailInput[0].oninput = function() {
+            $(this).removeClass("is-invalid").next("div.invalid-feedback").attr('hidden', 'hidden');
+          };
+          break;
+        default:
+          console.error(res);
+          throw new Error(res.errmsg);
+          break;
+      };
+    })
+    .fail(function(res) {
+      throw new Error(res);
+    });
+    return false;
+  });
+</script>
+{% endblock script %}

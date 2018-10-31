@@ -1,0 +1,67 @@
+{#
+    filename: register.html
+    description: 现场挂号
+#}
+
+{% extends "order/base.html" %}
+{% block title %}Register{% endblock title %}
+
+{% block body %}
+<div class="row mb-3">
+  <div class="col-12">
+    <h4>确认挂号</h4>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col-12">
+    <form id="form-register" action="{{ url_for('order.api_check', action='register') }}" method="POST">
+      <div class="form-group row">
+        <label for="form-email" class="col-form-label col-sm-3 col-md-2">邮箱：</label>
+        <div class="col">
+          <input type="email" id="form-email" name="email" class="form-control" placeholder="Email" required="required">
+          <div class="invalid-feedback" hidden="hidden">该邮箱下未找到有效订单</div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-outline-primary btn-block mt-4">查询订单</button>
+    </form>
+  </div>
+</div>
+{% endblock body %}
+
+{% block script %}
+<script type="text/javascript">
+  "use strict";
+
+  $("form#form-register").submit(function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var form = $(this);
+    $.ajax({
+      url: form.attr('action') + "&token=" + urlParams.get("token"),
+      type: form.attr('method'),
+      data: form.serialize(),
+    })
+    .done(function(res) {
+      switch (res.errcode) {
+        case 0:
+          window.location.href = res.redirect;
+          break;
+        case 302: // 订单未找到
+          var emailInput = form.find('input#form-email');
+          emailInput.addClass("is-invalid").next("div.invalid-feedback").removeAttr('hidden');
+          emailInput[0].oninput = function() {
+            $(this).removeClass("is-invalid").next("div.invalid-feedback").attr('hidden', 'hidden');
+          };
+          break;
+        default:
+          console.error(res);
+          throw new Error(res.errmsg);
+          break;
+      }
+    })
+    .fail(function(res) {
+      throw new Error(res);
+    });
+    return false;
+  });
+</script>
+{% endblock script %}

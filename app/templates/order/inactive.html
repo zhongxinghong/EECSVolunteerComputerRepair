@@ -1,0 +1,21 @@
+{#
+    filename: inactive.html
+    description: 非活动跳转页
+#}
+
+{% extends "order/base.html" %}
+{% block title %}Inactive{% endblock title %}
+
+{% block body %}
+<div class="row">
+  <div class="col-12">
+    {% if no_register %}
+    <h4 class="mb-3">活动尚未进行</h4>
+    <p>本次活动时间： {{ date }}　{{ start }} ~ {{ end }}</p>
+    {% else %}
+    <h4 class="mb-3">最近不出摊，敬请期待下期活动～</h4>
+    <p>下期活动时间： <span class="font-weight-bold">{{ next }}</span></p>
+    {% endif %}
+  </div>
+</div>
+{% endblock body %}

@@ -1,0 +1,8 @@
+Flask==1.0.2
+Flask-Script==2.0.6
+Jinja2==2.10
+Werkzeug==0.14.1
+pycrypto==2.6.1
+
+MarkupSafe==1.0
+simplejson==3.16.0
