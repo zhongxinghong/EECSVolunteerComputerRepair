@@ -120,5 +120,6 @@ def api_change_status():
     else:
         resp = jsonify(error_json())
     finally:
-        orderDB.close()
+        if orderDB:
+            orderDB.close()
         return resp

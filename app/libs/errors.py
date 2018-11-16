@@ -37,6 +37,10 @@ class CustomError(Exception):
     code = 0
     msg  = ""
 
+    @classmethod
+    def err_info(cls):
+        return {"errcode": cls.code, "errmsg": cls.msg}
+
 
 class FormKeysError(CustomError):
     code = 101
@@ -81,6 +85,7 @@ class SerialNumSignVerifyError(CustomError):
 class AdminTokenVerifyError(CustomError):
     code = 205
     msg  = "管理员 token 校验失败"
+
 
 class OrderRepeatError(CustomError):
     code = 301

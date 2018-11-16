@@ -149,7 +149,9 @@ def page_new():
             appointments[name] = count
         appointments = [dict(zip(["appointment", "sum"], item)) for item in sorted(appointments.items())]
 
-        orderDB.close()
+        if orderDB:
+            orderDB.close()
+
         return render_template("order/new.html", date=Date, site=Site, start=Start, end=End,\
                                      options=Options, appointments=appointments)
     else:
@@ -180,7 +182,8 @@ def page_check():
         else:
             resp = make_response(render_template("order/check.html", order=orderInfo))
         finally:
-            orderDB.close()
+            if orderDB:
+                orderDB.close()
             return resp
     else:
         return redirect(url_for('order.page_inactive'))
@@ -236,7 +239,8 @@ def page_result():
                         AND q.queueID != ? -- 去掉自己
                     """, (Date, queueID)).fetchone()
 
-            orderDB.close()
+            if orderDB:
+                orderDB.close()
 
             return render_template("order/result.html", queueID=queueID, interval=interval, order=orderInfo)
 
@@ -275,7 +279,7 @@ def api_create():
 
         for k, v in orderInfo.items():
             orderInfo[k] = v = v.strip() # strip
-            if k in ("email","wechat","type","appointment") and v == "": # 必填项为空
+            if k in ("email","type","appointment") and v == "": # 必填项为空
                 raise FormNullValueError
             if k == "type":
                 if v not in TypeMap:
@@ -311,8 +315,9 @@ def api_create():
     except Exception as err:
         # logger.exception(err)
         resp = jsonify(error_json(err))
+        if orderDB:
+            orderDB.close()
     finally:
-        orderDB.close()
         return resp
 
 
@@ -351,7 +356,8 @@ def api_check():
         respJson.update(error_json())
         resp = jsonify(respJson)
     finally:
-        orderDB.close()
+        if orderDB:
+            orderDB.close()
         return resp
 
 
@@ -393,7 +399,8 @@ def api_withdraw():
         respJson.update(error_json())
         resp = jsonify(respJson)
     finally:
-        orderDB.close()
+        if orderDB:
+            orderDB.close()
         return resp
 
 
@@ -435,5 +442,6 @@ def api_register():
         respJson.update(error_json())
         resp = jsonify(respJson)
     finally:
-        orderDB.close()
+        if orderDB:
+            orderDB.close()
         return resp
